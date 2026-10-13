@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEON PATHFINDER: THE LAST SIGNAL</title>
+  <link rel="stylesheet" href="/src/styles/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%3E<text y=%2226%22 font-size=%2228%22>⚡</text></svg>">
+</head>
+<body>
+  <!-- 3D Canvas Mount Point -->
+  <div id="canvas-container"></div>
+
+  <!-- Interactive UI Overlay -->
+  <div id="ui-root">
+    <!-- Header HUD -->
+    <header class="hud-header">
+      <div class="hud-title-box cyber-panel interactive">
+        <div class="hud-level-tag" id="hud-level-tag">LEVEL 01 // ALPHA</div>
+        <h1 class="hud-level-name" id="hud-level-name">FIRST CONTACT</h1>
+        <p class="hud-objective" id="hud-objective">Find the shortest path to extraction portal.</p>
+      </div>
+
+      <div class="hud-stats-box cyber-panel interactive">
+        <div class="stat-item">
+          <span class="stat-label">TIME</span>
+          <span class="stat-value" id="hud-stat-time">00:00</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">MOVES</span>
+          <span class="stat-value" id="hud-stat-moves">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">OPTIMAL</span>
+          <span class="stat-value" id="hud-stat-optimal">--</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Editor Toolbar (Left side) -->
+    <div id="editor-toolbar" class="cyber-panel interactive hidden">
+      <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--neon-cyan); margin-bottom: 4px;">MAP EDITOR</div>
+      <button class="cyber-btn active" id="btn-tool-wall">WALL [X]</button>
+      <button class="cyber-btn" id="btn-tool-empty">EMPTY [.]</button>
+      <button class="cyber-btn" id="btn-tool-start">START [S]</button>
+      <button class="cyber-btn" id="btn-tool-goal">GOAL [G]</button>
+      <hr style="border: 0; border-top: 1px solid rgba(0,240,255,0.2); margin: 4px 0;">
+      <button class="cyber-btn" id="btn-tool-random">RANDOM MAZE</button>
+      <button class="cyber-btn" id="btn-tool-clear">CLEAR</button>
+      <button class="cyber-btn cyber-btn-accent" id="btn-tool-solve">SOLVE BFS</button>
+    </div>
+
+    <!-- Live Algorithm Inspector (Right Drawer) -->
+    <aside id="inspector-panel" class="cyber-panel interactive">
+      <div class="inspector-header">
+        <span class="inspector-title">BFS INSPECTOR</span>
+        <span class="inspector-badge" id="inspector-badge">IDLE</span>
+      </div>
+
+      <div class="inspector-row">
+        <span class="inspector-key">STEP:</span>
+        <span class="inspector-val" id="insp-step">0</span>
+      </div>
+      <div class="inspector-row">
+        <span class="inspector-key">CURRENT CELL:</span>
+        <span class="inspector-val" id="insp-curr-cell">(0, 0)</span>
+      </div>
+      <div class="inspector-row">
+        <span class="inspector-key">QUEUE SIZE:</span>
+        <span class="inspector-val" id="insp-queue-size">0</span>
+      </div>
+      <div class="inspector-row">
+        <span class="inspector-key">VISITED TOTAL:</span>
+        <span class="inspector-val" id="insp-visited-count">0</span>
+      </div>
+      <div class="inspector-row">
+        <span class="inspector-key">OPTIMAL PATH:</span>
+        <span class="inspector-val" id="insp-path-len">--</span>
+      </div>
+
+      <div style="margin-top: 6px;">
+        <span class="inspector-key" style="font-size: 0.7rem; display: block; margin-bottom: 4px;">ACTIVE QUEUE:</span>
+        <div class="queue-preview-box" id="insp-queue-preview">[]</div>
+      </div>
+
+      <div style="margin-top: 6px;">
+        <span class="inspector-key" style="font-size: 0.7rem; display: block; margin-bottom: 4px;">DISCOVERED NEIGHBORS:</span>
+        <div class="queue-preview-box" id="insp-neighbors-preview">[]</div>
+      </div>
+    </aside>
+
+    <!-- Bottom Dock / Controls -->
+    <footer class="hud-footer">
+      <!-- Mode selection & Menu button -->
+      <div class="hud-dock cyber-panel interactive">
+        <button class="cyber-btn" id="btn-open-menu">MENU</button>
+        <button class="cyber-btn active" id="btn-mode-challenge">CHALLENGE</button>
+        <button class="cyber-btn" id="btn-mode-manual">MANUAL</button>
+        <button class="cyber-btn" id="btn-mode-observe">AI BFS</button>
+        <button class="cyber-btn" id="btn-mode-editor">EDITOR</button>
+      </div>
+
+      <!-- BFS Visualizer controls (Dynamic) -->
+      <div class="hud-dock cyber-panel interactive" id="visualizer-bar">
+        <button class="cyber-btn cyber-btn-accent" id="btn-vis-init">INITIATE BFS</button>
+        <button class="cyber-btn" id="btn-vis-pause">PAUSE</button>
+        <button class="cyber-btn" id="btn-vis-step">STEP</button>
+        <button class="cyber-btn" id="btn-vis-reset">RESET</button>
+        <div class="speed-slider-wrap">
+          <span>SPEED:</span>
+          <input type="range" id="vis-speed" class="speed-slider" min="0.5" max="5" step="0.5" value="1">
+          <span id="vis-speed-label">1x</span>
+        </div>
+      </div>
+
+      <!-- Camera & Sound utilities -->
+      <div class="hud-dock cyber-panel interactive">
+        <button class="cyber-btn" id="btn-cam-cycle" title="Kamera rejimini almashtirish">CAM: ORBIT</button>
+        <button class="cyber-btn" id="btn-toggle-inspector" title="BFS inspektori">INSPECTOR</button>
+        <button class="cyber-btn" id="btn-audio-mute" title="Ovoz">AUDIO: ON</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Main Menu Overlay -->
+  <div id="main-menu-overlay" class="interactive">
+    <div class="menu-brand-box">
+      <h1 class="menu-title">NEON PATHFINDER</h1>
+      <div class="menu-sub">THE LAST SIGNAL</div>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px;">
+        "Har bir yo'l bitta qarordan boshlanadi."
+      </p>
+    </div>
+
+    <div class="menu-actions">
+      <button class="cyber-btn menu-btn cyber-btn-accent" id="menu-btn-play">▶ O'YINNI BOSHLASH</button>
+      <button class="cyber-btn menu-btn" id="menu-btn-observe">👁 AI BFS KUZATISH</button>
+      <button class="cyber-btn menu-btn" id="menu-btn-editor">🛠 MAZE KONSTRUKTOR</button>
+      <button class="cyber-btn menu-btn" id="menu-btn-levels">📋 BOSQICHLAR RO'YXATI</button>
+      <button class="cyber-btn menu-btn" id="menu-btn-help">❓ QO'LLANMA (YORDAM)</button>
+    </div>
+  </div>
+
+  <!-- Level Select Modal -->
+  <div id="modal-levels" class="cyber-panel cyber-modal interactive hidden">
+    <div class="modal-title">BOSQICHNI TANLANG</div>
+    <div id="levels-list-container" style="display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto;">
+      <!-- Populated dynamically -->
+    </div>
+    <button class="cyber-btn" id="btn-close-levels" style="align-self: center;">YOPISH</button>
+  </div>
+
+  <!-- Victory / Level Complete Modal -->
+  <div id="modal-victory" class="cyber-panel cyber-modal interactive hidden">
+    <div class="modal-title" style="color: var(--neon-green);">MISSİYA BAJARILDI!</div>
+    <div style="font-family: var(--font-mono); font-size: 0.85rem; display: flex; flex-direction: column; gap: 8px;">
+      <div class="inspector-row">
+        <span>SARFLANGAN VAQT:</span>
+        <span id="vic-time" style="color: var(--neon-cyan);">00:00</span>
+      </div>
+      <div class="inspector-row">
+        <span>QILINGAN QADAMLAR:</span>
+        <span id="vic-moves" style="color: var(--neon-cyan);">0</span>
+      </div>
+      <div class="inspector-row">
+        <span>BFS ENGL QISQA YO'L:</span>
+        <span id="vic-optimal" style="color: var(--neon-green);">0</span>
+      </div>
+      <div class="inspector-row">
+        <span>SAMARADORLIK:</span>
+        <span id="vic-efficiency" style="color: #ffffff;">100%</span>
+      </div>
+    </div>
+    <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+      <button class="cyber-btn" id="btn-vic-replay">QAYTA O'YNASH</button>
+      <button class="cyber-btn cyber-btn-accent" id="btn-vic-next">KEYINGI BOSQICH ▶</button>
+    </div>
+  </div>
+
+  <!-- Help & Tutorial Modal -->
+  <div id="modal-help" class="cyber-panel cyber-modal interactive hidden">
+    <div class="modal-title">QO'LLANMA VA BOSHQARUV</div>
+    <div style="font-size: 0.82rem; line-height: 1.6; color: var(--text-muted); display: flex; flex-direction: column; gap: 8px;">
+      <p><strong style="color: var(--neon-cyan);">Boshqaruv:</strong> [W, A, S, D] yoki yo'nalish tugmalari orqali robot NEX ni boshqaring.</p>
+      <p><strong style="color: var(--neon-cyan);">Kamera:</strong> Sichqoncha orqali burish, kattalashtirish yoki [CAM] tugmasi bilan rejimni almashtirish (Orbit, 3rd Person, Top-Down, 1st Person).</p>
+      <p><strong style="color: var(--neon-cyan);">Haqiqiy BFS:</strong> AI BFS rejimida algoritmining to'lqin shaklida kataklarni qanday tekshirishini va eng qisqa yo'lni qanday topishini jonli kuzating.</p>
+      <p><strong style="color: var(--neon-cyan);">Konstruktor:</strong> O'z labirintingizni quring, devorlarni o'zgartiring va BFS yechimini sinab ko'ring.</p>
+    </div>
+    <button class="cyber-btn" id="btn-close-help" style="align-self: center; margin-top: 8px;">TUSHUNDIM</button>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
