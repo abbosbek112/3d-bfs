@@ -1,8 +1,8 @@
-# NEON PATHFINDER: THE LAST SIGNAL
+# 3D BFS: THE LAST SIGNAL
 
 > *"Har bir yo'l bitta qarordan boshlanadi."*
 
-**NEON PATHFINDER: THE LAST SIGNAL** — bu retro-futuristik kiberpank va Tron estetikasida yaratilgan, real **Breadth-First Search (BFS)** algoritmi ustiga qurilgan to'liq 3D ilmiy-fantastik labirint va jumboq o'yini.
+**3D BFS: THE LAST SIGNAL** — bu retro-futuristik kiberpank va Tron estetikasida yaratilgan, real **Breadth-First Search (BFS)** algoritmi ustiga qurilgan to'liq 3D ilmiy-fantastik labirint va jumboq o'yini.
 
 ---
 

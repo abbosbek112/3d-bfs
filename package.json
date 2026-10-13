@@ -1,7 +1,7 @@
 {
-  "name": "neon-pathfinder",
+  "name": "3d-bfs",
   "version": "1.0.0",
-  "description": "NEON PATHFINDER: THE LAST SIGNAL - 3D Sci-Fi Maze & BFS Pathfinding Game",
+  "description": "3D BFS: THE LAST SIGNAL - 3D Sci-Fi Maze & BFS Pathfinding Game",
   "type": "module",
   "scripts": {
     "dev": "vite",
